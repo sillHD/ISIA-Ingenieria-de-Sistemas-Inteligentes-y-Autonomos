@@ -134,6 +134,7 @@ export function Boton({
 // rojo se reserva para lo que reclama atención. Si añades un estado nuevo al
 // contenido, añádelo también aquí y en Base.module.css.
 const COLOR_ETIQUETA: Record<string, string> = {
+  Disponible: 'verde', Vencida: 'neutro', 'Por verificar': 'rojo',
   // estados de proyecto
   'En formulación': 'neutro',
   Prototipado: 'verde',

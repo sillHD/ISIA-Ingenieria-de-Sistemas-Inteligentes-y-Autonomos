@@ -5,6 +5,7 @@
   "installCommand": "npm ci",
   "framework": "nextjs",
   "regions": ["gru1"],
+  "crons": [{ "path": "/api/cron/convocatorias", "schedule": "0 9 * * *" }],
   "cleanUrls": true,
   "headers": [
     {

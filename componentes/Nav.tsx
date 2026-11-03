@@ -13,7 +13,7 @@ import estilos from './Nav.module.css'
 const SUBRUTAS: Record<string, string[]> = {
   '/semillero': ['/lineas', '/grupos', '/publicaciones'],
   '/proyectos': ['/ideas', '/prototipado', '/innovacion'],
-  '/oportunidades': ['/practicas'],
+  '/oportunidades': ['/practicas','/convocatorias'],
   '/comunidad': ['/integrantes', '/preguntas'],
   '/actividades': ['/novedades', '/reuniones', '/galeria'],
 }
