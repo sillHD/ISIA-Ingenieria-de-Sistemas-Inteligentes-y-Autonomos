@@ -7,6 +7,7 @@ import {crearClienteAdmin} from '@/lib/supabase/server'
 import {urlSegura,type Fuente} from './modelo'
 import {interpretarHtml,listadoHtmlValido} from './html'
 import {prepararCandidato} from './candidato'
+import {permiteRobots} from './robots'
 
 function ipPublica(ip:string){
  if(isIP(ip)===4){const [a,b,c]=ip.split('.').map(Number)
@@ -39,6 +40,17 @@ async function descargar(urlTexto:string,fuente:Fuente,saltos=0):Promise<string>
  if([301,302,303,307,308].includes(resultado.codigo)&&resultado.ubicacion)return descargar(new URL(resultado.ubicacion,url).href,fuente,saltos+1)
  if(resultado.codigo!==200)throw new Error(`HTTP ${resultado.codigo}`)
  return resultado.texto
+}
+async function verificarRastreo(urlTexto:string,fuente:Fuente){
+ const robots=new URL('/robots.txt',urlTexto).href
+ let reglas:string
+ try{reglas=await descargar(robots,fuente)}
+ catch(e){
+  if(e instanceof Error&&e.message==='HTTP 404')return
+  throw new Error(`No se pudo comprobar robots.txt: ${e instanceof Error?e.message:'error desconocido'}`)
+ }
+ if(/<\s*(?:!doctype\s+html|html)\b/i.test(reglas.slice(0,500)))throw new Error('robots.txt no devolvió reglas de rastreo válidas.')
+ if(!permiteRobots(reglas,urlTexto))throw new Error('robots.txt no permite consultar este listado.')
 }
 const entidades=(v:string)=>v.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/&(?:amp|lt|gt|quot|apos);/g,s=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'"})[s]??'')
 function campo(xml:string,nombre:string){return entidades(xml.match(new RegExp(`<${nombre}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${nombre}>`,'i'))?.[1]??'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
@@ -84,9 +96,11 @@ export async function ejecutarBusqueda(tipo:'manual'|'automatica'){
   if(!fuentes?.length)errores.push('No hay fuentes verificadas y habilitadas.')
   for(const fuente of (fuentes??[]) as Fuente[]){
    try{
+    if(fuente.integracion==='html'&&fuente.adaptador_html==='minciencias')throw new Error('Consulta HTML de Minciencias suspendida por sus condiciones de uso.')
     if(fuente.integracion==='html'&&!listadoHtmlValido(fuente.adaptador_html,fuente.url_listado))throw new Error('Adaptador HTML no autorizado.')
     const url=fuente.integracion==='html'?fuente.url_listado:fuente.url_feed
     if(!url)throw new Error('URL de integración ausente.')
+    await verificarRastreo(url,fuente)
     const contenido=await descargar(url,fuente)
     const items=fuente.integracion==='html'?interpretarHtml(contenido,fuente,clasificar):interpretarFeed(contenido,fuente)
     for(const item of items){

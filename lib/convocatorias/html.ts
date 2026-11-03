@@ -44,6 +44,7 @@ export function interpretarHtml(html:string,fuente:Fuente,clasificar:(texto:stri
   if(vistos.has(url.href))continue
   vistos.add(url.href)
   const titulo=entrada.titulo.slice(0,250),descripcion=entrada.descripcion.slice(0,5000)
+  if(fuente.adaptador_html==='dima'&&/\bfinalizada\b/i.test(descripcion))continue
   const clasificacion=clasificar(`${titulo} ${descripcion}`)
   if(!clasificacion.beneficios.length)continue
   const edicion=titulo.match(/\b20\d{2}\b/)?.[0]??null

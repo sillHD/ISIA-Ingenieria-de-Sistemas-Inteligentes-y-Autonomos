@@ -23,6 +23,11 @@ test('el adaptador DIMA usa el enlace de detalle y el texto de la tarjeta',()=>{
  assert.match(r[0].descripcion,/Estímulo económico/)
  assert.equal(r[0].url,'https://investigacion.manizales.unal.edu.co/convocatorias/estudiantes_auxiliares/191')
 })
+test('el adaptador DIMA descarta una convocatoria marcada como finalizada',()=>{
+ const fuente={...base,url_oficial:LISTADOS_HTML.dima,url_listado:LISTADOS_HTML.dima,adaptador_html:'dima',integracion:'html'} as Fuente
+ const html='<section><h2>Convocatoria estudiante auxiliar DIMA 41 - 2026</h2><p>Proyecto de investigación para estudiante de pregrado. Finalizada.</p><a href="/convocatorias/estudiantes_auxiliares/191">Ver convocatoria...</a></section>'
+ assert.equal(interpretarHtml(html,fuente,clase).length,0)
+})
 test('solo se aceptan listados HTML de los adaptadores definidos',()=>{
  assert.equal(listadoHtmlValido('minciencias',LISTADOS_HTML.minciencias),true)
  assert.equal(listadoHtmlValido('minciencias','https://minciencias.gov.co/otra'),false)

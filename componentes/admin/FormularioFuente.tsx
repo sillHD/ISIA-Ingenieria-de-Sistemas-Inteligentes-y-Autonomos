@@ -20,7 +20,7 @@ export default function FormularioFuente({fuente}:{fuente?:Fuente}){
    <option value="">Ninguno</option><option value="minciencias">Minciencias</option><option value="dima">DIMA Manizales</option>
   </select></label></div>
   <label><input name="habilitada" type="checkbox" defaultChecked={fuente?.habilitada??false}/> Habilitar recolección</label>
-  <label><input name="permiso" type="checkbox"/> Confirmo que la consulta automática está permitida para esta fuente.</label>
+  <label><input name="permiso" type="checkbox"/> Revisé las condiciones de uso y las reglas de rastreo de esta fuente; permiten consultar este listado o feed. No se exige una autorización escrita si el sitio no la establece.</label>
   {estado.error&&<p role="alert" className={estilos.error}>{estado.error}</p>}{estado.ok&&<p role="status">Fuente guardada.</p>}
   <button disabled={ocupado} className={estilos.boton}>Guardar fuente</button>
  </form>

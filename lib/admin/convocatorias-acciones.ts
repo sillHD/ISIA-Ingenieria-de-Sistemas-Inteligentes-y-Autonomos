@@ -79,9 +79,10 @@ export async function guardarFuente(id:string|null,_prev:Estado,f:FormData):Prom
   if(nombre.length<3||institucion.length<3||pais.length<3||!['manual','rss','html'].includes(integracion))return {ok:false,error:'Completa la fuente y el tipo de integración.'}
   if((oficial&&!urlSegura(oficial))||(feed&&!urlSegura(feed))||(listado&&!urlSegura(listado)))return {ok:false,error:'Las URL deben ser HTTPS públicas.'}
   if(habilitada){
-   if(!oficial||f.get('permiso')!=='on')return {ok:false,error:'Confirma la página oficial y el permiso de consulta automatizada.'}
+   if(!oficial||f.get('permiso')!=='on')return {ok:false,error:'Confirma la página oficial y que sus condiciones permiten esta consulta automatizada.'}
    if(integracion==='rss'&&(!feed||new URL(oficial).hostname.replace(/^www\./,'')!==new URL(feed).hostname.replace(/^www\./,'')))return {ok:false,error:'El RSS debe estar confirmado en el mismo dominio oficial.'}
    if(integracion==='html'&&(!listadoHtmlValido(adaptador,listado)||new URL(oficial).hostname.replace(/^www\./,'')!==new URL(listado).hostname.replace(/^www\./,'')))return {ok:false,error:'Selecciona un listado HTML oficial compatible con el adaptador.'}
+   if(integracion==='html'&&adaptador==='minciencias')return {ok:false,error:'La consulta HTML de Minciencias está suspendida por sus condiciones de uso. Puedes registrar enlaces oficiales manualmente.'}
    if(integracion==='manual')return {ok:false,error:'La fuente manual no se puede habilitar para búsqueda.'}
   }
   const datos={nombre,institucion,pais_ambito:pais,url_oficial:oficial||null,url_feed:feed||null,url_listado:listado||null,adaptador_html:adaptador||null,integracion,habilitada,estado_integracion:habilitada?`${integracion.toUpperCase()} habilitado`:'Pendiente de evaluación',actualizado_en:new Date().toISOString()}
