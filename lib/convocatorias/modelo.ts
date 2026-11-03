@@ -44,7 +44,8 @@ export type Ficha = {
  posible_duplicado_id:string|null; revisado_en:string|null; actualizado_en:string;
 }
 export type Fuente = {id:string;nombre:string;institucion:string;pais_ambito:string;
- url_oficial:string|null;url_feed:string|null;integracion:'manual'|'rss';habilitada:boolean;
+ url_oficial:string|null;url_feed:string|null;url_listado:string|null;adaptador_html:string|null;
+ integracion:'manual'|'rss'|'html';habilitada:boolean;
  estado_integracion:string;ultima_consulta:string|null;ultimo_resultado:string|null;
  ultimo_error:string|null;fallos_consecutivos:number}
 

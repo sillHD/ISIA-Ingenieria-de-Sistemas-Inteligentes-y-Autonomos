@@ -17,6 +17,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
+    "cheerio": "1.1.2",
     "gray-matter": "4.0.3",
     "next": "15.5.25",
     "react": "19.1.1",

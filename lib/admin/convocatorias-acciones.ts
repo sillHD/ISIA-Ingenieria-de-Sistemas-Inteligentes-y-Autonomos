@@ -7,6 +7,7 @@ import {registrarAuditoria} from '@/lib/admin/auditoria'
 import {crearClienteAdmin} from '@/lib/supabase/server'
 import {AREAS,CATEGORIAS,PUBLICOS,esInstitucional,fichaSchema,urlSegura} from '@/lib/convocatorias/modelo'
 import {ejecutarBusqueda} from '@/lib/convocatorias/motor'
+import {listadoHtmlValido} from '@/lib/convocatorias/html'
 
 export type Estado={ok:boolean;error?:string}
 const valor=(f:FormData,k:string)=>String(f.get(k)??'').trim()
@@ -74,11 +75,16 @@ export async function decidirFicha(id:string,estado:'publicada'|'rechazada'|'arc
 export async function guardarFuente(id:string|null,_prev:Estado,f:FormData):Promise<Estado>{
  void _prev
  try{
-  const u=await requerirAdministrador(),db=crearClienteAdmin(),nombre=valor(f,'nombre'),institucion=valor(f,'institucion'),pais=valor(f,'pais'),oficial=valor(f,'oficial'),feed=valor(f,'feed'),integracion=valor(f,'integracion'),habilitada=f.get('habilitada')==='on'
-  if(nombre.length<3||institucion.length<3||pais.length<3||!['manual','rss'].includes(integracion))return {ok:false,error:'Completa la fuente y el tipo de integración.'}
-  if((oficial&&!urlSegura(oficial))||(feed&&!urlSegura(feed)))return {ok:false,error:'Las URL deben ser HTTPS públicas.'}
-  if(habilitada&&(!oficial||!feed||integracion!=='rss'||new URL(oficial).hostname.replace(/^www\./,'')!==new URL(feed).hostname.replace(/^www\./,'')||f.get('permiso')!=='on'))return {ok:false,error:'Para activar RSS, confirma el feed oficial, el mismo dominio y el permiso de consulta.'}
-  const datos={nombre,institucion,pais_ambito:pais,url_oficial:oficial||null,url_feed:feed||null,integracion,habilitada,estado_integracion:habilitada?'RSS habilitado':'Pendiente de evaluación',actualizado_en:new Date().toISOString()}
+  const u=await requerirAdministrador(),db=crearClienteAdmin(),nombre=valor(f,'nombre'),institucion=valor(f,'institucion'),pais=valor(f,'pais'),oficial=valor(f,'oficial'),feed=valor(f,'feed'),listado=valor(f,'listado'),adaptador=valor(f,'adaptador'),integracion=valor(f,'integracion'),habilitada=f.get('habilitada')==='on'
+  if(nombre.length<3||institucion.length<3||pais.length<3||!['manual','rss','html'].includes(integracion))return {ok:false,error:'Completa la fuente y el tipo de integración.'}
+  if((oficial&&!urlSegura(oficial))||(feed&&!urlSegura(feed))||(listado&&!urlSegura(listado)))return {ok:false,error:'Las URL deben ser HTTPS públicas.'}
+  if(habilitada){
+   if(!oficial||f.get('permiso')!=='on')return {ok:false,error:'Confirma la página oficial y el permiso de consulta automatizada.'}
+   if(integracion==='rss'&&(!feed||new URL(oficial).hostname.replace(/^www\./,'')!==new URL(feed).hostname.replace(/^www\./,'')))return {ok:false,error:'El RSS debe estar confirmado en el mismo dominio oficial.'}
+   if(integracion==='html'&&(!listadoHtmlValido(adaptador,listado)||new URL(oficial).hostname.replace(/^www\./,'')!==new URL(listado).hostname.replace(/^www\./,'')))return {ok:false,error:'Selecciona un listado HTML oficial compatible con el adaptador.'}
+   if(integracion==='manual')return {ok:false,error:'La fuente manual no se puede habilitar para búsqueda.'}
+  }
+  const datos={nombre,institucion,pais_ambito:pais,url_oficial:oficial||null,url_feed:feed||null,url_listado:listado||null,adaptador_html:adaptador||null,integracion,habilitada,estado_integracion:habilitada?`${integracion.toUpperCase()} habilitado`:'Pendiente de evaluación',actualizado_en:new Date().toISOString()}
   const {error}=id?await db.from('convocatorias_fuentes').update(datos).eq('id',id):await db.from('convocatorias_fuentes').insert(datos)
   if(error)return {ok:false,error:error.message}
   await registrarAuditoria({usuarioId:u.id,usuarioEmail:u.correo,accion:id?'configurar_fuente':'crear_fuente',recursoTipo:'convocatoria_fuente',recursoId:id??nombre})

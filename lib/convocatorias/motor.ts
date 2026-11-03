@@ -5,6 +5,7 @@ import {request} from 'node:https'
 import {isIP} from 'node:net'
 import {crearClienteAdmin} from '@/lib/supabase/server'
 import {urlSegura,type Fuente} from './modelo'
+import {interpretarHtml,listadoHtmlValido} from './html'
 
 function ipPublica(ip:string){
  if(isIP(ip)===4){const [a,b,c]=ip.split('.').map(Number)
@@ -28,7 +29,7 @@ async function descargar(urlTexto:string,fuente:Fuente,saltos=0):Promise<string>
  const ip=direcciones[0]
  const resultado=await new Promise<{codigo:number;ubicacion?:string;texto:string}>((resolve,reject)=>{
   const partes:Buffer[]=[];let bytes=0
-  const req=request(url,{method:'GET',timeout:10000,headers:{'User-Agent':'ISIA-Convocatorias/1.0',Accept:'application/rss+xml, application/atom+xml, application/xml, text/xml','Accept-Encoding':'identity'},lookup:(_h,_o,cb)=>cb(null,ip.address,ip.family)},res=>{
+  const req=request(url,{method:'GET',timeout:10000,headers:{'User-Agent':'ISIA-Convocatorias/1.0',Accept:'application/rss+xml, application/atom+xml, application/xml, text/xml, text/html','Accept-Encoding':'identity'},lookup:(_h,_o,cb)=>cb(null,ip.address,ip.family)},res=>{
    res.on('data',(b:Buffer)=>{bytes+=b.length;if(bytes>2_000_000){req.destroy(new Error('Feed mayor de 2 MB.'));return}partes.push(b)})
    res.on('end',()=>resolve({codigo:res.statusCode??0,ubicacion:res.headers.location,texto:Buffer.concat(partes).toString('utf8')}))
   })
@@ -44,6 +45,7 @@ function clasificar(texto:string){
  const t=texto.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(),categorias:string[]=[],publicos:string[]=[],areas:string[]=[],beneficios:string[]=[]
  if(/investig|research|financ|funding|grant/.test(t)){categorias.push('Investigación y financiación');beneficios.push('Posible apoyo a investigación; confirmar en fuente oficial.')}
  if(/beca|scholarship|fellowship|pasant|internship|movilidad|mobility|master|maestr/.test(t)){categorias.push('Becas, pasantías y movilidad');beneficios.push('Posible formación o movilidad; confirmar en fuente oficial.')}
+ if(/estudiante auxiliar|estimulo economico/.test(t)){if(!categorias.includes('Investigación y financiación'))categorias.push('Investigación y financiación');beneficios.push('Posible apoyo económico académico; confirmar en fuente oficial.')}
  if(/reto|challenge|compet|hackathon/.test(t)){categorias.push('Retos y competencias tecnológicas');beneficios.push('Posible competencia académica; confirmar en fuente oficial.')}
  if(/innov|emprend|startup/.test(t)){categorias.push('Innovación y emprendimiento');beneficios.push('Posible apoyo a innovación; confirmar en fuente oficial.')}
  if(/colabor|cooper|consorti|partnership/.test(t)){categorias.push('Colaboración académica y científica');beneficios.push('Posible cooperación; confirmar en fuente oficial.')}
@@ -76,12 +78,16 @@ export async function ejecutarBusqueda(tipo:'manual'|'automatica'){
  if(!id)return {estado:'ocupada',nuevos:0,actualizados:0,duplicados:0,errores:[] as string[]}
  let nuevos=0,actualizados=0,duplicados=0,procesadas=0;const errores:string[]=[],detalle:{fuente:string;estado:string;encontrados:number}[]=[]
  try{
-  const {data:fuentes,error}=await db.from('convocatorias_fuentes').select('*').eq('habilitada',true).eq('integracion','rss')
+  const {data:fuentes,error}=await db.from('convocatorias_fuentes').select('*').eq('habilitada',true).in('integracion',['rss','html'])
   if(error)throw new Error(error.message)
-  if(!fuentes?.length)errores.push('No hay fuentes RSS verificadas y habilitadas.')
+  if(!fuentes?.length)errores.push('No hay fuentes verificadas y habilitadas.')
   for(const fuente of (fuentes??[]) as Fuente[]){
    try{
-    const items=interpretarFeed(await descargar(fuente.url_feed!,fuente),fuente)
+    if(fuente.integracion==='html'&&!listadoHtmlValido(fuente.adaptador_html,fuente.url_listado))throw new Error('Adaptador HTML no autorizado.')
+    const url=fuente.integracion==='html'?fuente.url_listado:fuente.url_feed
+    if(!url)throw new Error('URL de integración ausente.')
+    const contenido=await descargar(url,fuente)
+    const items=fuente.integracion==='html'?interpretarHtml(contenido,fuente,clasificar):interpretarFeed(contenido,fuente)
     for(const item of items){
      try{
       const {data:anterior,error:e}=await db.from('convocatorias').select('id,estado_editorial,huella_contenido,editado_manualmente_en').eq('clave_dedupe',item.clave).maybeSingle()
