@@ -93,7 +93,7 @@ grant all on public.convocatorias_fuentes,public.convocatorias,public.convocator
  public.convocatorias_ejecuciones,public.convocatorias_programacion to service_role;
 grant usage,select on sequence public.convocatorias_cambios_id_seq to service_role;
 create function public.iniciar_busqueda_convocatorias(p_tipo text,p_forzar boolean default false)
-returns uuid language plpgsql security definer set search_path=public as $$
+returns uuid language plpgsql security invoker set search_path=public as $$
 declare v_id uuid;
 begin
  if p_tipo not in ('manual','automatica') then raise exception 'tipo inválido'; end if;
@@ -109,7 +109,7 @@ end $$;
 create function public.finalizar_busqueda_convocatorias(
  p_id uuid,p_estado text,p_fuentes integer,p_nuevos integer,p_actualizados integer,
  p_duplicados integer,p_errores jsonb,p_detalle jsonb)
-returns void language plpgsql security definer set search_path=public as $$
+returns void language plpgsql security invoker set search_path=public as $$
 declare v_fallos integer; v_dias integer;
 begin
  if p_estado not in ('correcta','parcial','fallida') then raise exception 'estado inválido'; end if;

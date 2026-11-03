@@ -8,7 +8,7 @@ Las fuentes aprobadas figuran inicialmente deshabilitadas: **no se ha confirmado
 
 ## Activación paso a paso
 
-1. Revisar y aplicar `supabase/migrations/202611020001_convocatorias.sql` al proyecto Supabase correcto, después de las migraciones anteriores. Conservar un respaldo antes de aplicarla. Verificar que aparecen las cinco tablas, las dos funciones y 11 fuentes deshabilitadas.
+1. Las migraciones `20261103001821_202611020001_convocatorias.sql` y `20261103001917_convocatorias_indices.sql` ya se aplicaron al proyecto `ISIA-Website`. Se verificaron cinco tablas, dos funciones, dos índices de relación y 11 fuentes deshabilitadas. Para otros entornos, aplicarlas después de las migraciones anteriores y conservar un respaldo.
 2. Configurar en el servidor `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` y `SUPABASE_SECRET_KEY` según `.env.local.example`. No publicar la clave secreta.
 3. Confirmar en Supabase Auth que la cuenta institucional indicada por el semillero está autorizada con rol `admin`. Configurar `ISIA_INSTITUTIONAL_EMAIL` con ese correo en el entorno, sin guardarlo en el repositorio.
 4. Configurar `CRON_SECRET` como secreto largo en el despliegue. La ruta cron requiere `Authorization: Bearer <CRON_SECRET>` y el cron diario comprueba la fecha persistida antes de trabajar. El intervalo inicial es de cuatro días. La hora del cron es 09:00 UTC (04:00 Colombia); si una búsqueda manual termina entre disparos, puede haber hasta un día de retraso en el siguiente disparo.
