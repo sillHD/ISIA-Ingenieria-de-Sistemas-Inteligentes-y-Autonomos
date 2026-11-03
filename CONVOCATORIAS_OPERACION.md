@@ -46,6 +46,7 @@ El RSS de EACEA entrega XML oficial, pero falta comprobar en una ejecución cont
 ## Verificación de dependencias
 
 Se actualizaron Next.js a 15.5.28, Zod a 4.6.6 y Sharp a 0.35.5 (dependencia de Next.js). `npm audit --omit=dev` informa cero vulnerabilidades. `npm audit` completo sigue señalando avisos moderados en la cadena de ESLint y `minimatch`; son herramientas de desarrollo y la corrección automática propone versiones incompatibles con Next.js 15. Se mantuvieron ESLint y `eslint-config-next` en versiones compatibles 9.39.5 y 15.5.28.
+El proyecto fija Node 24.x, la versión configurada en Vercel, para evitar que el rango anterior `>=22` seleccione automáticamente Node 26 en futuras compilaciones.
 
 ## Recuperación
 
