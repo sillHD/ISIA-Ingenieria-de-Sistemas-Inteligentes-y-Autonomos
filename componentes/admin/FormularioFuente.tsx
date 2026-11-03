@@ -1,0 +1,27 @@
+'use client'
+import {useActionState} from 'react'
+import {guardarFuente,type Estado} from '@/lib/admin/convocatorias-acciones'
+import type {Fuente} from '@/lib/convocatorias/modelo'
+import estilos from './Convocatorias.module.css'
+
+export default function FormularioFuente({fuente}:{fuente?:Fuente}){
+ const [estado,accion,ocupado]=useActionState(guardarFuente.bind(null,fuente?.id??null),{ok:false} as Estado)
+ return <form action={accion} className={estilos.form}>
+  <div className={estilos.campo}><label>Nombre<input name="nombre" defaultValue={fuente?.nombre} required/></label></div>
+  <div className={estilos.campo}><label>Institución<input name="institucion" defaultValue={fuente?.institucion} required/></label></div>
+  <div className={estilos.campo}><label>País o ámbito<input name="pais" defaultValue={fuente?.pais_ambito??'Internacional'} required/></label></div>
+  <div className={estilos.campo}><label>URL institucional oficial<input name="oficial" type="url" defaultValue={fuente?.url_oficial??''}/></label></div>
+  <div className={estilos.campo}><label>URL RSS o Atom confirmada<input name="feed" type="url" defaultValue={fuente?.url_feed??''}/></label></div>
+  <div className={estilos.campo}><label>URL del listado HTML<input name="listado" type="url" defaultValue={fuente?.url_listado??''}/></label></div>
+  <div className={estilos.campo}><label>Integración<select name="integracion" defaultValue={fuente?.integracion??'manual'}>
+   <option value="manual">Pendiente o manual</option><option value="rss">RSS/Atom</option><option value="html">HTML público</option>
+  </select></label></div>
+  <div className={estilos.campo}><label>Adaptador HTML<select name="adaptador" defaultValue={fuente?.adaptador_html??''}>
+   <option value="">Ninguno</option><option value="minciencias">Minciencias</option><option value="dima">DIMA Manizales</option>
+  </select></label></div>
+  <label><input name="habilitada" type="checkbox" defaultChecked={fuente?.habilitada??false}/> Habilitar recolección</label>
+  <label><input name="permiso" type="checkbox"/> Revisé las condiciones de uso y las reglas de rastreo de esta fuente; permiten consultar este listado o feed. No se exige una autorización escrita si el sitio no la establece.</label>
+  {estado.error&&<p role="alert" className={estilos.error}>{estado.error}</p>}{estado.ok&&<p role="status">Fuente guardada.</p>}
+  <button disabled={ocupado} className={estilos.boton}>Guardar fuente</button>
+ </form>
+}

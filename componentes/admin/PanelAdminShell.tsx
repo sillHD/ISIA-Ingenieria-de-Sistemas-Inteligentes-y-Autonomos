@@ -54,6 +54,7 @@ export default function PanelAdminShell({ children, usuario, rol, pendientes }: 
               <Link href="/admin/multimedia" className={estilos.navEnlace}>Multimedia</Link>
               <span className={estilos.navTitulo}>Oportunidades</span>
               <Link href="/admin/practicas" className={estilos.navEnlace}>Prácticas e iniciativas</Link>
+              {esAdmin && <Link href="/admin/convocatorias" className={estilos.navEnlace}>Convocatorias</Link>}
               <span className={estilos.navTitulo}>Comunidad</span>
               <Link href="/admin/integrantes" className={estilos.navEnlace}>Integrantes</Link>
               <Link href="/admin/grupos" className={estilos.navEnlace}>Grupos de trabajo</Link>

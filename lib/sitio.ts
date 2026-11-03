@@ -31,6 +31,7 @@ export type ClaveSeccion =
   | 'lineas'
   | 'grupos'
   | 'practicas'
+  | 'convocatorias'
   | 'proyectos'
   | 'novedades'
   | 'reuniones'
@@ -42,6 +43,7 @@ export const CLAVES_SECCION: readonly ClaveSeccion[] = [
   'lineas',
   'grupos',
   'practicas',
+  'convocatorias',
   'proyectos',
   'novedades',
   'reuniones',
@@ -56,6 +58,7 @@ export const NAVEGACION_PREDETERMINADA: ConfiguracionNavegacion = {
   lineas: true,
   grupos: true,
   practicas: true,
+  convocatorias: true,
   proyectos: true,
   novedades: true,
   reuniones: true,

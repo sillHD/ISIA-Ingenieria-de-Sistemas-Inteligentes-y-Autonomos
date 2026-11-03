@@ -53,7 +53,7 @@ export async function navegacionVisible(): Promise<ItemNavegacion[]> {
   const grupos: Record<string, ClaveSeccion[]> = {
     '/semillero': ['lineas', 'grupos', 'publicaciones'],
     '/proyectos': ['proyectos'],
-    '/oportunidades': ['practicas'],
+    '/oportunidades': ['practicas','convocatorias'],
     '/comunidad': ['integrantes', 'grupos'],
     '/actividades': ['novedades', 'reuniones', 'galeria'],
   }
