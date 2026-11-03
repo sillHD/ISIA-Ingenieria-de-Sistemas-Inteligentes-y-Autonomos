@@ -8,7 +8,7 @@ Las 11 fuentes aprobadas figuran inicialmente deshabilitadas. Se localizaron dos
 
 ## Activación paso a paso
 
-1. Las migraciones `20261103001821_202611020001_convocatorias.sql`, `20261103001917_convocatorias_indices.sql` y `20261103012238_convocatorias_html_fuentes.sql` ya se aplicaron al proyecto `ISIA-Website`. Se verificaron cinco tablas, dos funciones, dos índices de relación y 11 fuentes deshabilitadas. Para otros entornos, aplicarlas después de las migraciones anteriores y conservar un respaldo.
+1. Las migraciones `20261103001821_202611020001_convocatorias.sql`, `20261103001917_convocatorias_indices.sql`, `20261103012238_convocatorias_html_fuentes.sql` y `20261103014350_convocatorias_resumen_editorial.sql` ya se aplicaron al proyecto `ISIA-Website`. Se verificaron cinco tablas, dos funciones, dos índices de relación y 11 fuentes deshabilitadas. Para otros entornos, aplicarlas después de las migraciones anteriores y conservar un respaldo.
 2. Configurar en el servidor `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` y `SUPABASE_SECRET_KEY` según `.env.local.example`. No publicar la clave secreta.
 3. Confirmar en Supabase Auth que la cuenta institucional indicada por el semillero está autorizada con rol `admin`. Configurar `ISIA_INSTITUTIONAL_EMAIL` con ese correo en el entorno, sin guardarlo en el repositorio.
 4. Configurar `CRON_SECRET` como secreto largo en el despliegue. La ruta cron requiere `Authorization: Bearer <CRON_SECRET>` y el cron diario comprueba la fecha persistida antes de trabajar. El intervalo inicial es de cuatro días. La hora del cron es 09:00 UTC (04:00 Colombia); si una búsqueda manual termina entre disparos, puede haber hasta un día de retraso en el siguiente disparo.
@@ -19,7 +19,7 @@ Las 11 fuentes aprobadas figuran inicialmente deshabilitadas. Se localizaron dos
 
 ## Política operativa
 
-- Cada registro importado entra como **pendiente**, con vigencia **Por verificar**. La clasificación por palabras clave es una sugerencia; el administrador confirma públicos, categorías y beneficios antes de publicar.
+- Cada registro importado entra como **pendiente**, con vigencia **Por verificar**. El recolector usa temporalmente el texto externo para clasificación y detección de cambios, pero guarda la descripción y el resumen vacíos; el administrador redacta una síntesis breve propia antes de publicar. La clasificación por palabras clave es una sugerencia; el administrador confirma públicos, categorías y beneficios.
 - Las fichas publicadas conservan los datos aprobados. Los cambios detectados se guardan en `convocatorias_cambios` para revisión; no se aplican automáticamente.
 - Una fuente fallida queda registrada y no elimina resultados válidos de otras fuentes. Una ejecución parcial o fallida no actualiza `last_successful_run`; se reintenta una vez al día durante dos intentos y después vuelve al intervalo configurado, sin bucle ilimitado.
 - La búsqueda tiene un lease de seis minutos y el cron una duración máxima de cinco. Para una fuente grande, ajustar límites solo después de medir en el entorno real.

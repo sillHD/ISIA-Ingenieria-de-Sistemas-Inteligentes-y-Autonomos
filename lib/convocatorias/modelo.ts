@@ -18,7 +18,7 @@ export function urlSegura(valor: string): boolean {
 
 export const fichaSchema = z.object({
   titulo: z.string().trim().min(5).max(250), institucion: z.string().trim().min(3).max(200),
-  resumen: z.string().trim().max(600), descripcion: z.string().trim().max(15000),
+  resumen: z.string().trim().max(320), descripcion: z.string().trim().max(15000),
   categorias: z.array(z.enum(CATEGORIAS)), publicos: z.array(z.enum(PUBLICOS)),
   areas: z.array(z.enum(AREAS)), ambito: z.enum(AMBITOS), paisRegion: z.string().trim().max(120),
   beneficios: z.array(z.string().trim().min(1).max(500)).max(30),

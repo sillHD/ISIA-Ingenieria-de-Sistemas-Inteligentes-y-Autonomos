@@ -6,6 +6,7 @@ import {isIP} from 'node:net'
 import {crearClienteAdmin} from '@/lib/supabase/server'
 import {urlSegura,type Fuente} from './modelo'
 import {interpretarHtml,listadoHtmlValido} from './html'
+import {prepararCandidato} from './candidato'
 
 function ipPublica(ip:string){
  if(isIP(ip)===4){const [a,b,c]=ip.split('.').map(Number)
@@ -93,10 +94,7 @@ export async function ejecutarBusqueda(tipo:'manual'|'automatica'){
       const {data:anterior,error:e}=await db.from('convocatorias').select('id,estado_editorial,huella_contenido,editado_manualmente_en').eq('clave_dedupe',item.clave).maybeSingle()
       if(e)throw new Error(e.message)
       if(anterior?.huella_contenido===item.huella){duplicados++;continue}
-      const datos={titulo:item.titulo,institucion:fuente.institucion,resumen:item.descripcion.slice(0,500),descripcion:item.descripcion,
-       categorias:item.clasificacion.categorias,publicos:item.clasificacion.publicos,areas:item.clasificacion.areas,
-       beneficios:item.clasificacion.beneficios,url_oficial:item.url,edicion:item.edicion,
-       ambito:fuente.pais_ambito==='Colombia'?'Colombia':'Internacional',pais_region:fuente.pais_ambito,huella_contenido:item.huella,actualizado_en:new Date().toISOString()}
+      const datos=prepararCandidato(item,fuente)
       if(anterior){
        if(anterior.estado_editorial==='publicada'||anterior.estado_editorial==='archivada'||anterior.editado_manualmente_en){
         const {error:ce}=await db.from('convocatorias_cambios').upsert({convocatoria_id:anterior.id,datos_propuestos:datos,huella_contenido:item.huella},{onConflict:'convocatoria_id,huella_contenido',ignoreDuplicates:true});if(ce)throw new Error(ce.message)

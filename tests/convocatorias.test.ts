@@ -8,6 +8,10 @@ const base={titulo:'Convocatoria oficial 2026',institucion:'Universidad de prueb
  beneficios:['Financiación de proyectos'],requisitos:[],fechaApertura:'',fechaCierre:'',permanente:false,
  procedimiento:'Consultar institución',urlOficial:'https://universidad.edu.co/convocatoria',urlPostulacion:'',estadoVigencia:'Por verificar',edicion:'2026'}
 test('categorías y públicos no son excluyentes',()=>{const r=fichaSchema.safeParse(base);assert.equal(r.success,true);if(r.success){assert.equal(r.data.categorias.length,2);assert.equal(r.data.publicos.length,2)}})
+test('el resumen público se mantiene breve',()=>{
+ assert.equal(fichaSchema.safeParse({...base,resumen:'a'.repeat(320)}).success,true)
+ assert.equal(fichaSchema.safeParse({...base,resumen:'a'.repeat(321)}).success,false)
+})
 test('rechaza enlaces inseguros y fechas incoherentes',()=>{
  for(const url of ['http://universidad.edu.co','https://127.0.0.1/a','https://intranet.local/a','https://usuario:clave@universidad.edu.co'])assert.equal(urlSegura(url),false)
  assert.equal(fichaSchema.safeParse({...base,fechaApertura:'2026-12-01',fechaCierre:'2026-11-01'}).success,false)

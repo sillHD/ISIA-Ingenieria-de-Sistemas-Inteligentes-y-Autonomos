@@ -11,8 +11,8 @@ export default function FormularioConvocatoria({ficha}:{ficha?:Ficha}){
  return <form action={accion} className={estilos.form}>
   {campo('titulo','Título oficial *',ficha?.titulo??'',true)}
   {campo('institucion','Institución organizadora *',ficha?.institucion??'',true)}
-  {campo('resumen','Resumen',ficha?.resumen??'')}
-  <div className={estilos.campo}><label htmlFor="descripcion">Descripción verificada</label><textarea id="descripcion" name="descripcion" rows={6} defaultValue={ficha?.descripcion??''}/></div>
+  {campo('resumen','Resumen breve redactado por ISIA (obligatorio al publicar)',ficha?.resumen??'')}
+  <div className={estilos.campo}><label htmlFor="descripcion">Descripción redactada y verificada por ISIA</label><textarea id="descripcion" name="descripcion" rows={6} defaultValue={ficha?.descripcion??''}/><span className={estilos.ayuda}>Resume con tus palabras el beneficio académico. No copies la descripción del portal oficial; enlázalo abajo.</span></div>
   {([['categorias','Categorías',CATEGORIAS,ficha?.categorias],['publicos','Públicos objetivo',PUBLICOS,ficha?.publicos],['areas','Áreas temáticas',AREAS,ficha?.areas]] as const).map(([nombre,etiqueta,opciones,actual])=><fieldset className={estilos.grupo} key={nombre}><legend>{etiqueta}</legend>{opciones.map(opcion=><label key={opcion}><input type="checkbox" name={nombre} value={opcion} defaultChecked={actual?.includes(opcion as never)??false}/>{opcion}</label>)}</fieldset>)}
   <div className={estilos.campo}><label htmlFor="ambito">Ámbito</label><select id="ambito" name="ambito" defaultValue={ficha?.ambito??'Colombia'}>{AMBITOS.map(x=><option key={x}>{x}</option>)}</select></div>
   {campo('paisRegion','País o región',ficha?.pais_region??'')}

@@ -42,7 +42,7 @@ export async function guardarFicha(id:string|null,_prev:Estado,f:FormData):Promi
    const {data:anterior,error:e}=await db.from('convocatorias').select('estado_editorial').eq('id',id).maybeSingle()
    if(e||!anterior)return {ok:false,error:'La ficha ya no existe.'}
    if(anterior.estado_editorial==='publicada'&&f.get('confirmado')!=='on')return {ok:false,error:'Confirma la evidencia antes de editar una ficha publicada.'}
-   if(anterior.estado_editorial==='publicada'&&(!x.beneficios.length||!x.descripcion))return {ok:false,error:'Una ficha publicada necesita beneficio y descripción confirmados.'}
+   if(anterior.estado_editorial==='publicada'&&(!x.beneficios.length||!x.resumen||!x.descripcion))return {ok:false,error:'Una ficha publicada necesita resumen, beneficio y descripción confirmados.'}
    const {error}=await db.from('convocatorias').update({...datos,...(anterior.estado_editorial==='publicada'?{revisado_en:new Date().toISOString()}: {})}).eq('id',id)
    if(error)return {ok:false,error:error.message}
   }else{
@@ -61,7 +61,7 @@ export async function decidirFicha(id:string,estado:'publicada'|'rechazada'|'arc
  if(estado==='publicada'){
   if(f.get('evidencia')!=='on')throw new Error('Confirma la fuente oficial y la vigencia.')
   if(x.posible_duplicado_id&&f.get('duplicado')!=='on')throw new Error('Revisa el posible duplicado.')
-  if(!urlSegura(x.url_oficial??'')||!x.categorias?.length||!x.publicos?.length||!x.beneficios?.length||!x.descripcion?.trim()||
+  if(!urlSegura(x.url_oficial??'')||!x.categorias?.length||!x.publicos?.length||!x.beneficios?.length||!x.resumen?.trim()||!x.descripcion?.trim()||
    x.beneficios.some((b:string)=>b.startsWith('Posible ')))throw new Error('Completa y verifica los datos antes de aprobar.')
   if(x.fecha_cierre&&x.fecha_cierre<new Date().toISOString().slice(0,10)&&x.estado_vigencia==='Disponible')throw new Error('El cierre ya venció.')
  }
