@@ -43,6 +43,10 @@ Las 11 fuentes aprobadas figuran inicialmente deshabilitadas. Se localizaron dos
 
 El RSS de EACEA entrega XML oficial, pero falta comprobar en una ejecución controlada que sus entradas representan convocatorias concretas. El listado HTML no equivale a permiso de extracción automática. No se deben habilitar fuentes por el solo hecho de que la página sea pública.
 
+## Verificación de dependencias
+
+Se actualizaron Next.js a 15.5.28, Zod a 4.6.6 y Sharp a 0.35.5 (dependencia de Next.js). `npm audit --omit=dev` informa cero vulnerabilidades. `npm audit` completo sigue señalando avisos moderados en la cadena de ESLint y `minimatch`; son herramientas de desarrollo y la corrección automática propone versiones incompatibles con Next.js 15. Se mantuvieron ESLint y `eslint-config-next` en versiones compatibles 9.39.5 y 15.5.28.
+
 ## Recuperación
 
 Si la migración falla, corregir el error antes de reintentar y no borrar tablas o datos existentes. Si una fuente falla, deshabilitarla desde el panel, revisar su URL y sus términos, y consultar `convocatorias_ejecuciones`. Un respaldo de Supabase y el historial editorial son necesarios para restaurar el servicio; no se configura despliegue de producción desde esta rama.
